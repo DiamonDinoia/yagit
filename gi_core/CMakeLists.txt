@@ -42,8 +42,6 @@ include(${CPM_DOWNLOAD_LOCATION})
 
 
 # GI_CORE
-
-find_package(Boost COMPONENTS system filesystem unit_test_framework REQUIRED)
 find_package(OpenMP)
 
 CPMFindPackage(
@@ -103,6 +101,7 @@ set_default_output_directories(gi_core)
 
 # GI_CORE_TESTS
 if (YAGIT_ENABLE_TESTS)
+    find_package(Boost COMPONENTS system filesystem unit_test_framework REQUIRED)
     add_subdirectory(tests)
 endif ()
 if (YAGIT_ENABLE_BENCHMARKS)
