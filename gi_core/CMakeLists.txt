@@ -19,7 +19,27 @@ project(gi_core)
 
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(common)
-include(CPM)
+
+if (NOT CPM_DOWNLOAD_VERSION)
+    set(CPM_DOWNLOAD_VERSION 0.38.5)
+endif ()
+
+if (CPM_SOURCE_CACHE)
+    set(CPM_DOWNLOAD_LOCATION "${CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
+elseif (DEFINED ENV{CPM_SOURCE_CACHE})
+    set(CPM_DOWNLOAD_LOCATION "$ENV{CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
+else ()
+    set(CPM_DOWNLOAD_LOCATION "${CMAKE_BINARY_DIR}/cmake/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
+endif ()
+if (NOT (EXISTS ${CPM_DOWNLOAD_LOCATION}))
+    message(STATUS "Downloading CPM.cmake to ${CPM_DOWNLOAD_LOCATION}")
+    file(DOWNLOAD
+            https://github.com/TheLartians/CPM.cmake/releases/download/v${CPM_DOWNLOAD_VERSION}/CPM.cmake
+            ${CPM_DOWNLOAD_LOCATION}
+    )
+endif ()
+include(${CPM_DOWNLOAD_LOCATION})
+
 
 # GI_CORE
 
@@ -82,6 +102,10 @@ set_target_properties(gi_core
 set_default_output_directories(gi_core)
 
 # GI_CORE_TESTS
-add_subdirectory(tests)
+if (YAGIT_ENABLE_TESTS)
+    add_subdirectory(tests)
+endif ()
+if (YAGIT_ENABLE_BENCHMARKS)
+    add_subdirectory(performance_analysis)
+endif ()
 # GI_PERFORMANCE_ANALYSIS
-add_subdirectory(performance_analysis)
